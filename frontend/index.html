@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading Screen with SSE</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+        align-items: center;
+        background-color: #f0f0f0;
+      }
+
+      #loading-screen {
+        text-align: center;
+        margin-top: 22%;
+        padding: 2rem;
+      }
+
+      #progress-bar {
+        width: 100%;
+        background-color: #ddd;
+        height: 30px;
+        margin-top: 20px;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      #progress-bar-fill {
+        height: 100%;
+        width: 0;
+        background-color: #4caf50;
+        transition: width 0.4s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading-screen">
+      <span id="percentProgress">Loading... 0%</span>
+      <div id="progress-bar">
+        <div id="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <script>
+      const loadingScreen = document.getElementById('percentProgress');
+      const progressBarFill = document.getElementById('progress-bar-fill');
+
+      const eventSource = new EventSource('http://localhost:5000/progress');
+
+      eventSource.onmessage = (event) => {
+        const progress = event.data;
+        loadingScreen.textContent = `Loading... ${progress}%`;
+        progressBarFill.style.width = `${progress}%`;
+      };
+
+      eventSource.addEventListener('done', () => {
+        loadingScreen.textContent = 'Loading Complete!';
+        progressBarFill.style.width = '100%';
+        eventSource.close();
+        // Optionally, transition to the main content
+      });
+    </script>
+  </body>
+</html>
